@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+int main(void){
+	int firstLayer[50][50] = {0};
+	int secondLayer[50][50] = {0};
+	
+	printf("%d\n", firstLayer[0][20]);
+	
+	int maxY, maxX = 0;
+	
+	int vertical = 0;
+	
+	char c;
+	
+	for(int y = 0; 1; ){
+		
+		c = getc(stdin);
+		
+		if (c == 'a')
+			break;
+			
+		else if (c == '\n'){
+			maxX++;
+			maxY = y;
+			y = 0;
+		}
+		
+		else{
+			firstLayer[maxX][y] = c;
+			y++;
+		}
+	}
+	/*
+	for(int Xx = 0; Xx != 3; Xx++){
+		for(int Yy = 0; Yy != 8; Yy++){
+			
+			printf("%c ", firstLayer[Xx][Yy]);
+			
+		}
+		printf("\n");
+		
+	}
+	*/
+	
+	for(int x = 0, y = 0; maxX > x; x += 2){
+		
+		for(int y2 = 0; maxY > y2; y2++){
+			
+			if(firstLayer[x][y2] == firstLayer[x + 1][y2] && firstLayer[x][y2] != 0){
+				printf("Vertical\n");
+				
+				secondLayer[x][y2] = firstLayer[x][y2];
+				secondLayer[x][y2 + 1] = firstLayer[x][y2];
+				
+				printf("Searching for the second vertical\n");
+				
+				int tempY = y2;
+				y2++;
+				
+				for(; maxY > y2; y2++){
+					
+					if(firstLayer[x][y2] == firstLayer[x + 1][y2]){
+						printf("Found the second vertical\n");
+						
+						secondLayer[x + 1][tempY] = firstLayer[x][y2];
+						secondLayer[x + 1][tempY + 1] = firstLayer[x][y2];
+						
+						firstLayer[x][y2] = 0;
+						firstLayer[x + 1][y2] = 0;
+						
+						break;
+					}
+					
+					secondLayer[x][y2 + 1] = firstLayer[x][y2];
+					secondLayer[x + 1][y2 + 1] = firstLayer[x + 1][y2];
+					
+				}
+				
+				//break;
+			}
+			
+			else {
+				
+				secondLayer[x][y2] = firstLayer[x][y2];
+				secondLayer[x + 1][y2] = firstLayer[x][y2];
+				
+				secondLayer[x][y2 + 1] = firstLayer[x + 1][y2];
+				secondLayer[x + 1][y2 + 1] = firstLayer[x + 1][y2];
+				
+				y2++; 
+				
+				printf("secondLayer:%c\n", firstLayer[x][y2]);
+			}
+			
+		}
+		
+		
+	}
+	
+	for(int Xx = 0; Xx != 2; Xx++){
+		for(int Yy = 0; Yy != 6; Yy++){
+			
+			printf("%c ", secondLayer[Xx][Yy]);
+			
+		}
+		printf("\n");
+		
+	}
+	
+	return 0;
+}
+
+ 
