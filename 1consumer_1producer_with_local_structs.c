@@ -1,30 +1,40 @@
 // 1 producer 1 consumer without using mutex, spinlock. Race condition was solved by while loops. Later I would upload a version with multiple producers and consumers without mutex and spinlock.
 // 1 issue is that if a producer doesnt fill up all the way the memory then the consumer would not consume the memory. 
-//Not good use of int  for better optimization uchar and difining a 1 bit flag is better 
+
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <limits.h>
+#ifdef _C51_
+typedef bit BOOLEAN
+#define FALSE 0
+#define TRUE 1
+#else
+typedef  enum  {FALSE=0,  TRUE=1}
+BOOLEAN;
+#endif
+
 
 typedef struct producer{
-	unsigned int stack1[5]; 
-	unsigned int stack2[5]; 
-	unsigned int stack3[5]; 
+	int stack1[5]; 
+	int stack2[5]; 
+	int stack3[5]; 
 }producer;
 
 /*
 typedef struct middleman{
 	unsigned int availableProd[3], availableCons[3];  
 		
-}middleman;
+}middleman; 
 */
 
 typedef struct available_Memory{
-	unsigned int availableMemory[3];
-	int consumerFlag;
-	unsigned int *pointerToMemory[3];
-	int fullMemory;
+	unsigned char availableMemory[3];
+	BOOLEAN consumerFlag;
+	int *pointerToMemory[3];
+	BOOLEAN fullMemory;
 }available_Memory;
 
 
@@ -47,10 +57,11 @@ void setter(void* received_struct, void* received_struct1){
 
 void producer1(void *received_struct){
 	
-	int memorySpace = 0, available = 0;
+	unsigned char memorySpace = 0;
+	BOOLEAN available = 0;
 	struct available_Memory *am = (struct available_Memory*) received_struct;
 	
-	for(int c = 0; c != 6; c++){
+	for(unsigned char c = 0; c != 6; c++){
 		
 		
 		while(am->fullMemory == 3){}
@@ -69,7 +80,7 @@ void producer1(void *received_struct){
 			am->availableMemory[memorySpace] = 0;
 			
 			
-			for(int j = 0; j != 5; j++){
+			for(unsigned char j = 0; j != 5; j++){
 					am->pointerToMemory[memorySpace][j] = j;
 					//printf("Producing[%d]:%d\n", memorySpace, pd.stack1[j]);
 			}
@@ -88,11 +99,12 @@ void producer1(void *received_struct){
 
 
 void consumer1(void *received_struct){
-	int a = 0, available = 0;
+	unsigned char a = 0;
+	BOOLEAN available = 0;
 	
 	struct available_Memory *am = (struct available_Memory*) received_struct;
 	
-	for(int c = 0; c != 6; c++){
+	for(unsigned char c = 0; c != 6; c++){
 		
 		
 		while(am->fullMemory == 0){}
@@ -110,7 +122,7 @@ void consumer1(void *received_struct){
 		}
 		
 		if(available){
-			for(int j = 0; j!= 5; j++)
+			for(unsigned char j = 0; j!= 5; j++);
 				//printf("%d\n", pd.stack1[j]);
 			printf("Memory:%d consumed\n", a);
 			am->availableMemory[a] = 1;
